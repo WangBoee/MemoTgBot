@@ -6,6 +6,8 @@ Project features:
 - Saving text in Markdown format to Memo.
 - Using Memo to record channel information and transform channels into personal media management tools.
 
+## Notice
+- Your telegram bot must be the admin of the channel.
 
 ## Usage
 ### docker
