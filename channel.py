@@ -148,7 +148,7 @@ async def handle_file_message(message):
                 caption = message.caption
             else:
                 caption = extract_entities(message.caption, message.caption_entities) + '\n'
-        content = f"⭐**Telegram File**\n" + caption + \
+        content = f"⭐**Telegram File**⭐\n" + caption + \
                   f"\n🗂**[{message.json[message.content_type]['file_name']}]({tel_link})**"
         await savetomemo_and_delreply(content, channel_id, message_id)
     except Exception as e:
