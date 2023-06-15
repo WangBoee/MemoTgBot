@@ -57,6 +57,8 @@ def format_entity(entity_type, entity_text, entity_url):
         return f"~~{entity_text.strip()}~~"
     elif entity_type == 'text_link':
         return f"[{entity_text.strip()}]({entity_url})"
+    elif entity_type == 'mention':
+        return f"[{entity_text.strip()}](https://t.me/{entity_text.strip()[1:]})"
     else:
         return entity_text.strip()
 
