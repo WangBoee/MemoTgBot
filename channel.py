@@ -49,6 +49,7 @@ async def multi_photo_checker():
 @auth
 async def handle_channel_message(message):
     try:
+        print(f"message: {message}")
         logging.debug(f"频道消息：{message}")
         logging.debug(f"Json信息：{message.json}")
 
