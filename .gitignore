@@ -1,3 +1,4 @@
 .idea
 docker-compose.yaml
 测试信息.txt
+__pycache__/

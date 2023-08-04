@@ -10,7 +10,7 @@ CHAT_ID = os.getenv("CHAT_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 MEMO_API = os.getenv("MEMO_API")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
+MEMO_API_VER = os.getenv("MEMO_API_VER") if os.getenv("MEMO_API_VER") is not None else 'v1'
 
 CHANNEL_IDs = CHANNEL_ID.split(",")
 CHAT_IDs = CHAT_ID.split(",")
@@ -19,8 +19,8 @@ OPENID = MEMO_API.split("=")[1]
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-res = Resource(DOMAIN, OPENID)
-memo = Memo(DOMAIN, OPENID)
+res = Resource(DOMAIN, OPENID, MEMO_API_VER)
+memo = Memo(DOMAIN, OPENID, MEMO_API_VER)
 bot = AsyncTeleBot(BOT_TOKEN)
 lock = threading.Lock()
 media_group = {}  # 用于存储不同组的图片

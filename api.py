@@ -1,4 +1,5 @@
 import re
+import time
 
 from aiohttp import ClientTimeout, ClientResponse
 from aiohttp.formdata import FormData
@@ -27,10 +28,11 @@ def request(method, url, data=None, json=None):
 
 
 class Memo:
-    def __init__(self, domain, openid):
+    def __init__(self, domain, openid, apiver):
         self.domain = domain
         self.openid = openid
-        self.url = f"{domain}api/memo?openId={openid}"
+        self.apiver = apiver
+        self.url = f"{domain}api/{apiver}/memo?openId={openid}"
 
     async def send_memo(self, content="", visibility="PRIVATE", res_id_list=None):
         if res_id_list is None:
@@ -41,10 +43,11 @@ class Memo:
             "content": content,
             "visibility": visibility,
             "resourceIdList": res_id_list,
+            "relationList": []
         }
         tags = re.findall(r"#\S+", content)
         if tags:
-            tag = Tag(self.domain, self.openid)
+            tag = Tag(self.domain, self.openid, self.apiver)
             for t in tags:
                 t = t.replace("#", "")
                 await tag.create_tag(t)
@@ -55,12 +58,15 @@ class Memo:
 
 
 class Resource:
-    def __init__(self, domain, openid):
-        self.url = f"{domain}api/resource/blob?openId={openid}"
+    def __init__(self, domain, openid, apiver):
+        self.apiver = apiver
+        self.url = f"{domain}api/{apiver}/resource/blob?openId={openid}"
 
     async def create_res(self, file):
         data = FormData()
-        data.add_field("file", file, filename="telegram-file.jpg", content_type="image/jpeg")
+        local_time = time.localtime(time.time())
+        time_str = time.strftime("%Y%m%d_%H%M")
+        data.add_field("file", file, filename=f"telegram-file-{time_str}.jpg", content_type="image/jpeg")
         async with request("POST", url=self.url, data=data) as resp:
             assert resp.status == 200
             resp_data = await resp.json()
@@ -68,8 +74,9 @@ class Resource:
 
 
 class Tag:
-    def __init__(self, domain, openid):
-        self.url = f"{domain}api/tag?openId={openid}"
+    def __init__(self, domain, openid, apiver):
+        self.apiver = apiver
+        self.url = f"{domain}api/{apiver}/tag?openId={openid}"
 
     async def create_tag(self, name):
         data = {"name": name}
