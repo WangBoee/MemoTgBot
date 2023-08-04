@@ -43,7 +43,7 @@ class Memo:
             "content": content,
             "visibility": visibility,
             "resourceIdList": res_id_list,
-            "relationList": []
+            "relationList": [],
         }
         tags = re.findall(r"#\S+", content)
         if tags:
@@ -54,6 +54,7 @@ class Memo:
         async with request("POST", url=self.url, json=data) as resp:
             assert resp.status == 200
             resp_data = await resp.json()
+            print(f"data={resp_data}")
             return resp_data["data"]["id"]
 
 
