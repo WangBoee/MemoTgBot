@@ -55,7 +55,7 @@ class Memo:
             assert resp.status == 200
             resp_data = await resp.json()
             print(f"data={resp_data}")
-            return resp_data["data"]["id"]
+            return resp_data["id"]
 
 
 class Resource:
@@ -71,7 +71,7 @@ class Resource:
         async with request("POST", url=self.url, data=data) as resp:
             assert resp.status == 200
             resp_data = await resp.json()
-            return resp_data["data"]["id"]
+            return resp_data["id"]
 
 
 class Tag:
