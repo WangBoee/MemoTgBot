@@ -11,6 +11,7 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")
 MEMO_API = os.getenv("MEMO_API")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 MEMO_API_VER = os.getenv("MEMO_API_VER") if os.getenv("MEMO_API_VER") is not None else 'v1'
+MEMO_PUBLIC = os.getenv("MEMO_PUBLIC") if os.getenv("MEMO_PUBLIC") is not None else 'PUBLIC'
 
 CHANNEL_IDs = CHANNEL_ID.split(",")
 CHAT_IDs = CHAT_ID.split(",")

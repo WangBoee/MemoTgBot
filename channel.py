@@ -4,7 +4,7 @@ from utils import *
 
 async def savetomemo_and_delreply(message_text, channel_id, message_id):
     # Send to memo
-    await memo.send_memo(content=message_text)
+    await memo.send_memo(content=message_text, visibility=MEMO_PUBLIC)
     logging.info('Successfully save to memo!')
 
     # 回复频道消息
@@ -31,7 +31,7 @@ async def multi_photo_checker():
                 res_id = await res.create_res(f)
                 res_id_list.append(res_id)
             media_group.pop(message_group_id)
-            memo_id = await memo.send_memo(content=data["caption"], res_id_list=res_id_list)
+            memo_id = await memo.send_memo(content=data["caption"], visibility=MEMO_PUBLIC, res_id_list=res_id_list)
             if 'channel_id' not in data:
                 await bot.reply_to(data["message"], f"{DOMAIN}m/{memo_id}")
             else:
@@ -117,7 +117,7 @@ async def handle_photo_message(message):
                 caption = message.caption
             else:
                 caption = extract_entities(message.caption, message.caption_entities)
-            await memo.send_memo(content=caption, res_id_list=[res_id])
+            await memo.send_memo(content=caption, visibility=MEMO_PUBLIC, res_id_list=[res_id])
             logging.info('Successfully save to memo!')
 
             # 回复消息

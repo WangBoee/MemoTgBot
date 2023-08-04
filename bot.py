@@ -18,7 +18,7 @@ async def send_text_memo(message):
             message_text = message.text
         else:
             message_text = extract_entities(message.text, message.entities)
-        memo_id = await memo.send_memo(content=message_text)
+        memo_id = await memo.send_memo(content=message_text, visibility=MEMO_PUBLIC)
         logging.info(f"Memo sent: {DOMAIN}m/{memo_id}")
         await bot.reply_to(message, f"{DOMAIN}m/{memo_id}")
     except Exception as e:
@@ -64,7 +64,7 @@ async def send_photo_memo(message):
             else:
                 caption = extract_entities(message.caption, message.caption_entities)
             memo_id = await memo.send_memo(
-                content=caption, res_id_list=[res_id]
+                content=caption, visibility=MEMO_PUBLIC, res_id_list=[res_id]
             )
             await bot.reply_to(message, f"{DOMAIN}m/{memo_id}")
         except Exception as e:
