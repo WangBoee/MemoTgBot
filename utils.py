@@ -47,43 +47,59 @@ def get_file_id(message) -> str:
     return file_id
 
 
-def format_entity(entity_type, entity_text, entity_url):
-    if entity_type == 'bold':
-        return f"**{entity_text.strip()}**"
-    elif entity_type == 'italic':
-        return f"*{entity_text.strip()}*"
-    # elif entity_type == 'underline':
-    #     return f"__{entity_text.strip()}__"
-    elif entity_type == 'strikethrough':
-        return f"~~{entity_text.strip()}~~"
-    elif entity_type == 'text_link':
-        return f"[{entity_text.strip()}]({entity_url})"
-    elif entity_type == 'mention':
-        return f"[{entity_text.strip()}](https://t.me/{entity_text.strip()[1:]})"
-    else:
-        return entity_text.strip()
 
+def format_entity(entity_text, entity_info_list):
+    formatted_text = entity_text
+    for entity_type, length, entity_url in entity_info_list:
+        if entity_type == 'text_link':
+            formatted_text = f"[{formatted_text.strip()}]({entity_url})"
+        elif entity_type == 'bold':
+            formatted_text = f"**{formatted_text.strip()}**"
+        elif entity_type == 'italic':
+            formatted_text = f"*{formatted_text.strip()}*"
+        elif entity_type == 'strikethrough':
+            formatted_text = f"~~{formatted_text.strip()}~~"
+        elif entity_type == 'mention':
+            formatted_text = f"[{formatted_text.strip()}](https://t.me/{entity_text.strip()[1:]})"
+        else:
+            formatted_text = formatted_text.strip()
+    return formatted_text
+            
+
+def is_supported_entity(entity):
+    return entity.type in ['text_link', 'bold', 'italic', 'strikethrough', 'mention']
 
 def extract_entities(text, entities):
     # 提取实体的 offset 和 length
-    entity_list = []
-    for entity in entities:
-        entity_list.append((entity.type, entity.offset * 2, entity.length * 2, entity.url))
-    entity_list.sort(key=lambda x: x[1])
+    entity_dict = {}
 
-    # 编码为UTF-16
+    for entity in entities:
+        if not is_supported_entity(entity):
+            continue
+
+        entity_offset = entity.offset * 2
+        length = entity.length * 2
+        entity_type = entity.type
+        entity_url = entity.url
+
+        # 使用字典存储相同 offset 的 entity
+        if entity_offset in entity_dict:
+            entity_dict[entity_offset].append((entity_type, length, entity_url))
+        else:
+            entity_dict[entity_offset] = [(entity_type, length, entity_url)]
+
     text_utf16 = text.encode('utf-16', 'surrogatepass')[2:]
     formatted_text = ""
     last_entity_end = 0
 
-    for entity_type, entity_offset, length, entity_url in entity_list:
+    for entity_offset, entity_info_list in sorted(entity_dict.items()):
+
         # 添加不在entity内的部分
         formatted_text += text_utf16[last_entity_end:entity_offset].decode('utf-16', 'ignore')
 
         # 提取entity文本
+        length = entity_info_list[0][1]
         entity_text = text_utf16[entity_offset:entity_offset + length].decode('utf-16', 'ignore')
-        # print(entity_text)
-        # 判断entity换行符位置及操作
         if '\n' in entity_text:
             pattern = r'(\n)'
             split_text = re.split(pattern, entity_text)
@@ -93,12 +109,10 @@ def extract_entities(text, entities):
                 elif text == '':
                     pass
                 else:
-                    formatted_text += format_entity(entity_type, text, entity_url)
+                    formatted_text += format_entity(entity_text, entity_info_list)
         else:
-            # 添加entity的 Markdown 格式
-            formatted_text += format_entity(entity_type, entity_text.strip(), entity_url)
-
+            formatted_text += format_entity(entity_text, entity_info_list)
         last_entity_end = entity_offset + length
-    # 添加剩余的文本部分
+
     formatted_text += text_utf16[last_entity_end:].decode('utf-16', 'ignore')
     return formatted_text
