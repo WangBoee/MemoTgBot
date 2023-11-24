@@ -20,11 +20,14 @@ class Request:
         await self.retry_client.close()
 
 
-def request(method, url, data=None, json=None):
+def request(method, url, data=None, json=None, token=None):
+    headers = {}
+    if token:
+        headers['Authorization'] = f"Bearer {token}"
     if json is not None:
-        return Request(method, url, json=json, timeout=ClientTimeout(total=1000))
+        return Request(method, url, json=json, headers=headers, timeout=ClientTimeout(total=1000))
     else:
-        return Request(method, url, data=data, timeout=ClientTimeout(total=1000))
+        return Request(method, url, data=data, headers=headers, timeout=ClientTimeout(total=1000))
 
 
 class Memo:
@@ -32,7 +35,7 @@ class Memo:
         self.domain = domain
         self.openid = openid
         self.apiver = apiver
-        self.url = f"{domain}api/{apiver}/memo?openId={openid}"
+        self.url = f"{domain}api/{apiver}/memo"
 
     async def send_memo(self, content="", visibility="PRIVATE", res_id_list=None):
         if res_id_list is None:
@@ -51,7 +54,7 @@ class Memo:
             for t in tags:
                 t = t.replace("#", "")
                 await tag.create_tag(t)
-        async with request("POST", url=self.url, json=data) as resp:
+        async with request("POST", url=self.url, json=data, token=self.openid) as resp:
             assert resp.status == 200
             resp_data = await resp.json()
             print(f"data={resp_data}")
@@ -61,14 +64,15 @@ class Memo:
 class Resource:
     def __init__(self, domain, openid, apiver):
         self.apiver = apiver
-        self.url = f"{domain}api/{apiver}/resource/blob?openId={openid}"
+        self.url = f"{domain}api/{apiver}/resource/blob"
+        self.openid = openid
 
     async def create_res(self, file):
         data = FormData()
         local_time = time.localtime(time.time())
         time_str = time.strftime("%Y%m%d_%H%M")
         data.add_field("file", file, filename=f"telegram-file-{time_str}.jpg", content_type="image/jpeg")
-        async with request("POST", url=self.url, data=data) as resp:
+        async with request("POST", url=self.url, data=data, token=self.openid) as resp:
             assert resp.status == 200
             resp_data = await resp.json()
             return resp_data["id"]
@@ -77,9 +81,10 @@ class Resource:
 class Tag:
     def __init__(self, domain, openid, apiver):
         self.apiver = apiver
-        self.url = f"{domain}api/{apiver}/tag?openId={openid}"
+        self.url = f"{domain}api/{apiver}/tag"
+        self.openid = openid
 
     async def create_tag(self, name):
         data = {"name": name}
-        async with request("POST", url=self.url, json=data) as resp:
+        async with request("POST", url=self.url, json=data, token=self.openid) as resp:
             assert resp.status == 200

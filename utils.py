@@ -10,13 +10,14 @@ CHAT_ID = os.getenv("CHAT_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 MEMO_API = os.getenv("MEMO_API")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 MEMO_API_VER = os.getenv("MEMO_API_VER") if os.getenv("MEMO_API_VER") is not None else 'v1'
 MEMO_PUBLIC = os.getenv("MEMO_PUBLIC") if os.getenv("MEMO_PUBLIC") is not None else 'PUBLIC'
 
 CHANNEL_IDs = CHANNEL_ID.split(",")
 CHAT_IDs = CHAT_ID.split(",")
 DOMAIN = MEMO_API.split("api/")[0]
-OPENID = MEMO_API.split("=")[1]
+OPENID = ACCESS_TOKEN
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
