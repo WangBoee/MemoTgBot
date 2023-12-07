@@ -11,13 +11,15 @@ async def send_help(message):
 @auth
 async def send_text_memo(message):
     try:
-        logging.debug(f"频道消息：{message}")
         logging.debug(f"Json信息：{message.json}")
 
         if 'entities' not in message.json:
             message_text = message.text
         else:
             message_text = extract_entities(message.text, message.entities)
+        msg_link = getMsgLink(message)
+        if msg_link:
+            message_text = f"{message_text}\n\n[Message link]({msg_link})"
         memo_id = await memo.send_memo(content=message_text, visibility=MEMO_PUBLIC)
         logging.info(f"Memo sent: {DOMAIN}m/{memo_id}")
         await bot.reply_to(message, f"{DOMAIN}m/{memo_id}")
@@ -63,6 +65,9 @@ async def send_photo_memo(message):
                 caption = message.caption
             else:
                 caption = extract_entities(message.caption, message.caption_entities)
+            msg_link = getMsgLink(message)
+            if msg_link:
+                caption = f"{caption}\n\n[Message link]({msg_link})"
             memo_id = await memo.send_memo(
                 content=caption, visibility=MEMO_PUBLIC, res_id_list=[res_id]
             )

@@ -49,8 +49,6 @@ async def multi_photo_checker():
 @auth
 async def handle_channel_message(message):
     try:
-        print(f"message: {message}")
-        logging.debug(f"频道消息：{message}")
         logging.debug(f"Json信息：{message.json}")
 
         # 获取频道消息的内容和其他相关信息
@@ -60,6 +58,9 @@ async def handle_channel_message(message):
             message_text = message.text
         else:
             message_text = extract_entities(message.text, message.entities)
+        msg_link = getMsgLink(message)
+        if msg_link:
+            message_text = f"{message_text}\n\n[Message link]({msg_link})"
 
         await savetomemo_and_delreply(message_text, channel_id, message_id)
 
@@ -75,7 +76,7 @@ async def handle_channel_message(message):
 @auth
 async def handle_photo_message(message):
     try:
-        logging.info(f"频道消息：{message}")
+        logging.info(f"Json消息：{message.json}")
         if message.media_group_id:
             logging.info(f"Media group ID: {message.media_group_id}")
             with lock:
@@ -117,6 +118,9 @@ async def handle_photo_message(message):
                 caption = message.caption
             else:
                 caption = extract_entities(message.caption, message.caption_entities)
+            msg_link = getMsgLink(message)
+            if msg_link:
+                caption = f"{caption}\n\n[Message link]({msg_link})"
             await memo.send_memo(content=caption, visibility=MEMO_PUBLIC, res_id_list=[res_id])
             logging.info('Successfully save to memo!')
 
@@ -136,7 +140,6 @@ async def handle_photo_message(message):
 @bot.channel_post_handler(content_types=["document", "video", "audio"])
 async def handle_file_message(message):
     try:
-        logging.debug(f"频道消息：{message}")
         logging.debug(f"json消息：{message.json}")
 
         channel_id = message.chat.id

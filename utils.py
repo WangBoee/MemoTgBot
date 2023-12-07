@@ -27,6 +27,13 @@ bot = AsyncTeleBot(BOT_TOKEN)
 lock = threading.Lock()
 media_group = {}  # 用于存储不同组的图片
 
+def getMsgLink(message):
+    if not message:
+        return None
+    if message.forward_from_chat:
+        return f"https://t.me/{message.forward_from_chat.username}/{message.forward_from_message_id}"
+    else:
+        return f"https://t.me/{message.chat.username}/{message.message_id}"
 
 def auth(func):
     async def wrapper(message):
