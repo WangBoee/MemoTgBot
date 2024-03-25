@@ -84,6 +84,14 @@ def extract_entities(text, entities):
     for entity in entities:
         if not is_supported_entity(entity):
             continue
+        
+        tmp_txt = text[entity.offset:entity.offset + entity.length]
+        if tmp_txt == " " or tmp_txt == "\n":
+            continue
+        if "#" in tmp_txt and entity.type != "text_link":
+            continue
+        if  text[entity.offset - 1] == "#":
+            continue
 
         entity_offset = entity.offset * 2
         length = entity.length * 2
