@@ -77,6 +77,10 @@ def format_entity(entity_text, entity_info_list):
 def is_supported_entity(entity):
     return entity.type in ['text_link', 'bold', 'italic', 'strikethrough', 'mention']
 
+def is_only_spaces_and_escape_characters(s):
+    escape_chars = {'\n', '\t', '\r', '\b', '\f', '\v', '\\', ' '}
+    return s != '' and all(char in escape_chars for char in s)
+
 def extract_entities(text, entities):
     # 提取实体的 offset 和 length
     entity_dict = {}
@@ -84,9 +88,10 @@ def extract_entities(text, entities):
     for entity in entities:
         if not is_supported_entity(entity):
             continue
-        
+        if entity.offset > len(text) or entity.offset + entity.length > len(text):
+            continue
         tmp_txt = text[entity.offset:entity.offset + entity.length]
-        if tmp_txt == " " or tmp_txt == "\n":
+        if tmp_txt == '' or is_only_spaces_and_escape_characters(tmp_txt):
             continue
         if "#" in tmp_txt and entity.type != "text_link":
             continue
